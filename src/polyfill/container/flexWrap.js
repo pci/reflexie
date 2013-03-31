@@ -30,12 +30,13 @@ Flexbox.models.flexWrap = function (wrap, properties) {
 
 	var item;
 	var items;
-	var prevItem;
+	var prevItem, itemSize;
 
 	var mainTotal = mainStart + "Total";
 	var crossTotal = crossStart + "Total";
 
 	var currMainStart = 0;
+	var currLineLength = 0;
 	var prevMainStart = 0;
 	var currCrossStart = 0;
 	var prevCrossStart = 0;
@@ -72,8 +73,9 @@ Flexbox.models.flexWrap = function (wrap, properties) {
 
 		for (i = 0, j = itemValues.length; i < j; i++) {
 			item = itemValues[i];
+			itemSize = utils.flexBasisToPx(item.debug.properties["flex-basis"], item[mainSize], containerSize) + item.debug.inner[mainStart] + item.debug.margin[mainTotal];
 
-			if (currMainStart + (item[mainSize] + item.debug.inner[mainStart] + item.debug.margin[mainTotal]) > breakPoint) {
+			if (currLineLength + itemSize > breakPoint) {
 				lines.push(line);
 
 				line = {
@@ -98,13 +100,15 @@ Flexbox.models.flexWrap = function (wrap, properties) {
 				}
 
 				currMainStart = 0;
+				currLineLength = 0;
 				currCrossStart = 0;
 			}
 
 			item[mainStart] -= prevMainStart * multiplier;
 			item[crossStart] += prevCrossStart * reverser;
 
-			currMainStart += (item[mainSize] + item.debug.inner[mainStart]) + item.debug.margin[mainTotal];
+			currMainStart += item[crossSize] + item.debug.inner[crossStart] + item.debug.margin[crossTotal];
+			currLineLength += itemSize;
 			currCrossStart = Math.max(currCrossStart, (item[crossSize] + item.debug.inner[crossStart]) + item.debug.margin[crossTotal]);
 
 			if (isColumn) {
